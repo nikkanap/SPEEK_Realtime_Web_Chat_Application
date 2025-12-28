@@ -12,12 +12,18 @@ Enter the code to create the my-app vite project:
 
 > [!NOTE]
 > If an npm warning occurs where node_modules are to be deleted:
-1. Manually delete node_modules in my-app
-2. `cd my-app`
+1. `cd my-app`
+2. Manually delete node_modules
 3. `npm install`
 
 ### Running Vite React Project:
 `npm run dev`
+
+### Adding a React Router Library for Navigation Between Pages:
+`npm install react-router-dom`
+
+Then you go to App.tsx and add the pages in the `<BrowserRouter>` element 
+
 
 + Backend Framework: Python + FastAPI 
 + API Architecture: REST
