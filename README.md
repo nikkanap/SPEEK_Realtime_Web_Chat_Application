@@ -5,8 +5,8 @@ This is going to me my personal project in the Christmas Break before the 2nd Se
 SPEEK is going to be a real-time chat web application where users can register an account and start chatting with other fellow users!
 
 ## Technology Stack:
-+ **Frontend: Vite + React**
-### Creating a Vite Project:
+### I. **Frontend: Vite + React**
+#### Creating a Vite Project:
 Enter the code to create the my-app vite project:
 `npm create vite@latest my-app -- --template react-ts`
 
@@ -16,17 +16,17 @@ Enter the code to create the my-app vite project:
 2. Manually delete node_modules
 3. `npm install`
 
-### Running Vite React Project:
+#### Running Vite React Project:
 `npm run dev`
 
-### Adding a React Router Library for Navigation Between Pages:
+#### Adding a React Router Library for Navigation Between Pages:
 `npm install react-router-dom`
 
 Then you go to App.tsx and add the pages in the `<BrowserRouter>` element .
 
-+ Backend Framework: Python + FastAPI 
-+ API Architecture: REST
-+ Database: PostgreSQL
+### II. Backend Framework: Python + FastAPI 
+### III. API Architecture: REST
+### IV. Database: PostgreSQL
 
 ## Features/Requirements:
 ### User Management:
