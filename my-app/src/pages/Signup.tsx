@@ -1,11 +1,11 @@
 import './styles.css'
 
-function LoginPage() {
+function SignupPage() {
   console.log("bruh");
   return (
     <>
       <h1>SPEEK Messaging Site</h1>
-      <h2>Log In Page</h2>
+      <h2>Sign Up Page</h2>
       <label>
         Username
         <input type="text"></input>
@@ -14,4 +14,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage
+export default SignupPage

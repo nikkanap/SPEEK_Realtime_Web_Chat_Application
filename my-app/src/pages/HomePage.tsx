@@ -1,9 +1,8 @@
-import { useState } from 'react'
-import LoginPage from './Login'
-import './styles.css'
+import './styles.css';
+import { useNavigate } from 'react-router-dom';
 
 function HomePage() {
-  //const [count, setCount] = useState(0)
+  const navigate = useNavigate();
 
   return (
     <>
@@ -11,14 +10,17 @@ function HomePage() {
       <p className="read-the-docs">
         Welcome to SPEEK, a new chatting website.
       </p>
-      <a className="link-button" href="">
+      <button onClick={() => navigate('/login')}>
         Log In
-      </a>
-      <a className="link-button" href="/signup">
+      </button>
+      <button onClick={() => navigate('/signup')}>
         Sign Up
-      </a>
+      </button>
     </>
   )
 }
+
+// work on issue:
+// route not working going from homepage to login and signup pages
 
 export default HomePage

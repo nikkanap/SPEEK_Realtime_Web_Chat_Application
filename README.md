@@ -22,8 +22,7 @@ Enter the code to create the my-app vite project:
 ### Adding a React Router Library for Navigation Between Pages:
 `npm install react-router-dom`
 
-Then you go to App.tsx and add the pages in the `<BrowserRouter>` element 
-
+Then you go to App.tsx and add the pages in the `<BrowserRouter>` element .
 
 + Backend Framework: Python + FastAPI 
 + API Architecture: REST
