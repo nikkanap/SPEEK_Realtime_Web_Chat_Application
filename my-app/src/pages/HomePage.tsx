@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import LoginPage from './Login'
 import './styles.css'
 
 function HomePage() {
@@ -10,7 +11,7 @@ function HomePage() {
       <p className="read-the-docs">
         Welcome to SPEEK, a new chatting website.
       </p>
-      <a className="link-button" href="/login">
+      <a className="link-button" href="">
         Log In
       </a>
       <a className="link-button" href="/signup">
