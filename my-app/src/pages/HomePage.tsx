@@ -22,7 +22,4 @@ function HomePage() {
   )
 }
 
-// work on issue:
-// route not working going from homepage to login and signup pages
-
 export default HomePage
