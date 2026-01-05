@@ -1,6 +1,9 @@
 import './styles.css'
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
+  const navigate = useNavigate();
+  
   console.log("bruh");
   return (
     <>
@@ -10,6 +13,16 @@ function LoginPage() {
         Username
         <input type="text"></input>
       </label>
+      <label>
+        Password
+        <input type="password"></input>
+      </label>
+      <button>
+        Log In
+      </button>
+      <button onClick={() => navigate('/signup')}>
+        Don't have an account yet? Sign Up.
+      </button>
     </>
   )
 }

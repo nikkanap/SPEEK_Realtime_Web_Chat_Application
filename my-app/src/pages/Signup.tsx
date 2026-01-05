@@ -1,7 +1,9 @@
 import './styles.css'
+import { useNavigate } from 'react-router-dom';
 
 function SignupPage() {
-  console.log("bruh");
+  const navigate = useNavigate();
+
   return (
     <>
       <h1>SPEEK Messaging Site</h1>
@@ -10,6 +12,20 @@ function SignupPage() {
         Username
         <input type="text"></input>
       </label>
+      <label>
+        Email Address
+        <input type="text"></input>
+      </label>
+      <label>
+        Password
+        <input type="password"></input>
+      </label>
+      <button>
+        Sign In
+      </button>
+      <button onClick={() => navigate('/login')}>
+        Already have an account? Log In.
+      </button>
     </>
   )
 }
