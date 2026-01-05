@@ -1,11 +1,11 @@
+import Header from '../components/Header';
 import './styles.css'
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function SignupPage() {
-  const navigate = useNavigate();
-
   return (
     <>
+      <Header />
       <h1>SPEEK Messaging Site</h1>
       <h2>Sign Up Page</h2>
       <label>
@@ -23,9 +23,9 @@ function SignupPage() {
       <button>
         Sign In
       </button>
-      <button onClick={() => navigate('/login')}>
+      <Link to='/login'>
         Already have an account? Log In.
-      </button>
+      </Link>
     </>
   )
 }
