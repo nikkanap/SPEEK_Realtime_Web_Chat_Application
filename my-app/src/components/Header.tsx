@@ -1,16 +1,19 @@
-import './styles.css';
+import './header.css';
 import { Link, useNavigate } from 'react-router-dom';
 
-function HomePage() {
+function Header() {
   const navigate = useNavigate();
 
   return (
-    <>
-      <h1>SPEEK</h1>
-      <Link to="/login">Log In</Link>
-      <Link to="/signup">Sign Up</Link>
-    </>
+    <div className="header">
+      <h2>SPEEK</h2>
+      <div className="linkContainer">
+        <Link to="/">Home</Link>
+        <Link to="/aboutus">About Us</Link>
+        <Link to="/contact">Contact</Link>
+      </div>
+    </div>
   )
 }
 
-export default HomePage
+export default Header
