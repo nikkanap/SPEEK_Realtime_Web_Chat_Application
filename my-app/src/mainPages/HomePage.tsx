@@ -12,12 +12,14 @@ function HomePage() {
       <p className='read-the-docs'>
         Welcome to SPEEK, a new chatting website.
       </p>
-      <button onClick={() => navigate('/login')}>
-        Log In
-      </button>
-      <button onClick={() => navigate('/signup')}>
-        Sign Up
-      </button>
+      <div className='homepageButtons'>
+        <button onClick={() => navigate('/login')}>
+          Log In
+        </button>
+        <button onClick={() => navigate('/signup')}>
+          Sign Up
+        </button>
+      </div>
     </>
   )
 }

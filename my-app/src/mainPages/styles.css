@@ -71,4 +71,12 @@
   }
 }
 
+.homepageButtons {
+  width: fit-content;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin: auto;
+}
+
 
