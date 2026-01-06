@@ -4,6 +4,8 @@ This is going to me my personal project in the Christmas Break before the 2nd Se
 ## Application Description
 SPEEK is going to be a real-time chat web application where users can register an account and start chatting with other fellow users!
 
+> [!UPDATE]  Shifted to a Linux Distro (Ubuntu) but most likely most of the code presented in this documentation will be the same
+
 ## Technology Stack:
 ### I. **Frontend: Vite + React**
 #### Creating a Vite Project:
@@ -25,8 +27,16 @@ Enter the code to create the my-app vite project:
 Then you go to App.tsx and add the pages in the `<BrowserRouter>` element .
 
 ### II. Backend Framework: Python + FastAPI 
+1. Created a .env file containing database content (added it to .gitignore)
+2. Created a venv for the python packages I need for my project and to run the program properly
+3. Install all the required packages for the program like pg8000, dotenv, etc.
+
 ### III. API Architecture: REST
 ### IV. Database: PostgreSQL
+What I did was:
+- Install postgresql using
+`sudo apt install postgresql postgresql-contrib -y`
+Then I logged in, added a password, and created the database for SPEEK.
 
 ## Features/Requirements:
 ### User Management:
