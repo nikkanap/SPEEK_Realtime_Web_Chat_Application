@@ -10,12 +10,14 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"]) # take note of the port here always
 
+# HOMEPAGE
 @app.route("/")
 def home():
     return jsonify({
         "message": "Welcome to SPEEK, a new chatting website."
     })
 
+# LOGIN PAGE
 @app.route("/login", methods=["POST"])
 def confirmLogin():
     # get the data 
@@ -23,19 +25,41 @@ def confirmLogin():
 
     username = data.get("username")
     passsword = data.get("password")
-    print(f'Username={username}, Password={passsword}')
+    
+    # set up the response
+    success = username == "test" and passsword == "123"
+    message = "Login Successful!" if success else "Invalid Credentials!"
 
-    if username == "test" and passsword == "123":
-        return jsonify({
-            "success": True,
-            "message": "Login Successful!" 
-        })
+    print(success)
+    print(message)
+
+    # send the response
     return jsonify({
-        "success": False,
-        "message": "Invalid Credentials!" 
+        "success": success,
+        "message": message
     })
 
+# SIGNUP PAGE
+@app.route("/signup", methods=["POSt"])
+def confirmSignup(): 
+    data = request.json
 
+    username = data.get("username")
+    email = data.get("email")
+    passsword = data.get("password")
+    
+    # set up the response
+    success = True # username == "test" and passsword == "123"
+    message = "Signup Successful!" if success else "Invalid Signup!"
+
+    print(success)
+    print(message)
+
+    # send the response
+    return jsonify({
+        "success": success,
+        "message": message
+    })
 
 
 
