@@ -1,9 +1,11 @@
 import string 
 import random
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
+
 from dotenv import load_dotenv 
+
 from passlib.hash import bcrypt
 from psycopg2.pool import ThreadedConnectionPool
 import os
@@ -76,6 +78,14 @@ def generatePassHash(password):
 def checkPassHash(password, passwordhash):
     return bcrypt.verify(password, passwordhash)
 
+def setUserSession(username):
+    user_data = runQuery(
+        "SELECT * FROM users where username=%s",
+        (username,)
+    )[0]
+    session["user_id"] = user_data[0]
+    session["username"] = user_data[1]
+    session["email"] = user_data[2]
 
 ##### HTTP REQUESTS #####
 # HOMEPAGE
@@ -112,6 +122,9 @@ def confirmLogin():
         # Check stored password under username if it matches
         success = checkPassHash(password, stored_pass)
         message = "Logged in successfully!" if success else "Invalid login credentials."
+
+        if success: 
+            setUserSession(username)
     else:
         message = "User does not exist."
 
@@ -165,5 +178,20 @@ def confirmSignup():
                     else f"An error has occurred while adding new user." 
     })
     
+# CHAT PAGE
+@app.route("/chat", methods=["POST"])
+def chat():
+    if "user_id" not in session:
+        return jsonify({
+            "error" : "User is not logged in."
+        })
+    user_data = (session["user_id"], session["username"], session["email"])
+    
+    return jsonify({
+        "user-data" : user_data,
+        "message" : "Successfully logged into account!"
+    })
+
+
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
