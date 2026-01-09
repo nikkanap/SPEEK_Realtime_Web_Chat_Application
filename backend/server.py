@@ -1,4 +1,3 @@
-import pg8000 # type: ignore
 import string 
 import random
 
@@ -38,16 +37,12 @@ def runQuery(query, params=None, fetch=True):
     # returning values
     success = False
     data = ()
-    
-    print("Inside RunQuery: ", query)
-    print("Parameters: ", params)
-    print("Fetching results: ", fetch)
+
     try:
         with db_connection.cursor() as cursor:
             cursor.execute(query, params)
 
             if fetch: # if we need to get any results
-                print("Getting results for request: ", query)
                 data = cursor.fetchall() or ()
             
             # if no results
