@@ -1,15 +1,88 @@
 import pg8000 # type: ignore
+import string 
+import random
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv 
+from passlib.hash import bcrypt
+from psycopg2.pool import ThreadedConnectionPool
 import os
 
+# loading the database information from the .env file
 load_dotenv()
 
+# getting the data from the database through the config file
+pool = ThreadedConnectionPool(
+    minconn=1,
+    maxconn=10,
+    dbname=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT"))
+)
+
+# Flask for HTTP requests
 app = Flask(__name__)
+# allowing only from localhost:3000 to listen in
 CORS(app, origins=["http://localhost:3000"]) # take note of the port here always
 
+##### DATABASE #####
+
+# modify this later AFTER creating signup page that has hashed passwords
+def runQuery(query, params=None, fetch=True):
+    # Get a connection to the db
+    db_connection = pool.getconn()
+
+    # returning values
+    success = False
+    data = ()
+    
+    print("Inside RunQuery: ", query)
+    print("Parameters: ", params)
+    print("Fetching results: ", fetch)
+    try:
+        with db_connection.cursor() as cursor:
+            cursor.execute(query, params)
+
+            if fetch: # if we need to get any results
+                print("Getting results for request: ", query)
+                data = cursor.fetchall() or ()
+            
+            # if no results
+            db_connection.commit()
+            success = True # if successful, then we set success to true
+
+    except Exception as e:
+        db_connection.rollback()
+        print('An exception occurred', e)
+        raise # raise the exception
+
+    finally:
+        # give the connection back regardless of results
+        pool.putconn(db_connection)
+
+        # return a dict
+        return {
+            "data" : data,
+            "success" : success
+        } 
+
+##### GENERATING USERIDS AND PASSWORD HASHING #####
+# generates a userID of size 10
+def generateUserID(size=10, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+# generates a hash of the password string
+def generatePassHash(password):
+    return bcrypt.hash(password)
+
+def checkPassHash(password, passwordhash):
+    return bcrypt.verify(password, passwordhash)
+
+
+##### HTTP REQUESTS #####
 # HOMEPAGE
 @app.route("/")
 def home():
@@ -20,20 +93,34 @@ def home():
 # LOGIN PAGE
 @app.route("/login", methods=["POST"])
 def confirmLogin():
-    # get the data 
+    # Get data 
     data = request.json
-
     username = data.get("username")
-    passsword = data.get("password")
-    
-    # set up the response
-    success = username == "test" and passsword == "123"
-    message = "Login Successful!" if success else "Invalid Credentials!"
+    password = data.get("password")
 
-    print(success)
-    print(message)
+    # Check if user and password matches
+    user_check_query = "SELECT passwordhash FROM users WHERE username=%s"
+    user_check_results = runQuery(
+        user_check_query,
+        (username,)
+    ) 
+    user_count = len(user_check_results["data"])
 
-    # send the response
+    # Set up server response
+    success = False
+    message = ""
+
+    if user_count > 0:
+        # Since result of fetchall is list of tuples, we get the first result of the list, then the first of the tuple
+        stored_pass = user_check_results["data"][0][0]
+        
+        # Check stored password under username if it matches
+        success = checkPassHash(password, stored_pass)
+        message = "Logged in successfully!" if success else "Invalid login credentials."
+    else:
+        message = "User does not exist."
+
+    # Send back to requesting page
     return jsonify({
         "success": success,
         "message": message
@@ -42,67 +129,46 @@ def confirmLogin():
 # SIGNUP PAGE
 @app.route("/signup", methods=["POSt"])
 def confirmSignup(): 
+    # Get data
     data = request.json
-
     username = data.get("username")
     email = data.get("email")
-    passsword = data.get("password")
-    
-    # set up the response
-    success = True # username == "test" and passsword == "123"
-    message = "Signup Successful!" if success else "Invalid Signup!"
+    password = data.get("password")
 
-    print(success)
-    print(message)
+    # Check for existing users
+    select_query = "SELECT userID FROM users WHERE username=%s"
+    select_results = runQuery(
+        select_query,
+        (username,)
+    )
+    user_count = len(select_results["data"])
 
-    # send the response
+    # If user exists, respond back that username is already being used
+    if user_count > 0:
+        return jsonify({
+            "success": False,
+            "message": "Username is already being used."
+        })
+
+    # If user DNE:
+    user_ID = generateUserID()
+    password_hash = generatePassHash(password)
+
+    # Add user to database
+    insert_query = "INSERT INTO users (userID, username, email, passwordhash) VALUES (%s, %s, %s, %s)"
+    insert_results = runQuery(
+        insert_query,
+        (user_ID, username, email, password_hash), 
+        False
+    )
+
+    # Return reponse for adding new user
+    success = insert_results["success"]
     return jsonify({
         "success": success,
-        "message": message
+        "message": f"User {username} is officially signed in!" if success 
+                    else f"An error has occurred while adding new user." 
     })
-
-
-
-
-
-
-# getting the data from the database through the config file
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_PORT = int(os.getenv("DB_PORT", 5432)) #if waray, use 5432
-
-print(DB_HOST, DB_NAME, DB_USER, DB_PASSWORD, DB_PORT)
-
-
-db_connection = None
-try:
-    db_connection = pg8000.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        port=DB_PORT
-    )
-    print("Connection successful!")
-
-    cursor = db_connection.cursor()
-    query = "SELECT * FROM users;"
-    cursor.execute(query)
-    records = cursor.fetchall()
-
-    print("Users: ")
-    for record in records:
-        print(record)
     
-    cursor.close()
-
-except Exception as e:
-    print("An error has occured while trying to connect to the database: ", e)
-finally:
-    if db_connection:
-        db_connection.close()
-
 if __name__ == "__main__":
     app.run(port=5001, debug=True)

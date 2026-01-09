@@ -5,9 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 function LoginPage() {  
   const navigate = useNavigate();
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  
   const apiURL = import.meta.env.VITE_API_URL;
 
   const handleLogin = async () => {
@@ -23,7 +25,7 @@ function LoginPage() {
     const data = await response.json();
     setMessage(data.message);
 
-    if(data.success === true) navigate("/chatpage"); 
+    if(data.success) navigate("/chatpage"); 
   }
   
   return (
