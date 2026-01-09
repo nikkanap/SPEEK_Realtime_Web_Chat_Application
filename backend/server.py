@@ -26,6 +26,8 @@ pool = ThreadedConnectionPool(
 
 # Flask for HTTP requests
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY") # get the session key for the app
+
 # allowing only from localhost:3000 to listen in
 CORS(app, origins=["http://localhost:3000"]) # take note of the port here always
 
@@ -75,17 +77,21 @@ def generateUserID(size=10, chars=string.ascii_uppercase + string.digits):
 def generatePassHash(password):
     return bcrypt.hash(password)
 
+# matches the password
 def checkPassHash(password, passwordhash):
     return bcrypt.verify(password, passwordhash)
 
+# sets the user session
 def setUserSession(username):
     user_data = runQuery(
-        "SELECT * FROM users where username=%s",
+        "SELECT userID, username, email FROM users WHERE username=%s",
         (username,)
-    )[0]
-    session["user_id"] = user_data[0]
-    session["username"] = user_data[1]
-    session["email"] = user_data[2]
+    )["data"]
+    print("user data: ", user_data)
+    session["user_id"] = user_data[0][0]
+    session["username"] = user_data[0][1]
+    session["email"] = user_data[0][2]
+    return 
 
 ##### HTTP REQUESTS #####
 # HOMEPAGE
@@ -124,6 +130,7 @@ def confirmLogin():
         message = "Logged in successfully!" if success else "Invalid login credentials."
 
         if success: 
+            # Set the user session
             setUserSession(username)
     else:
         message = "User does not exist."
@@ -185,13 +192,15 @@ def chat():
         return jsonify({
             "error" : "User is not logged in."
         })
-    user_data = (session["user_id"], session["username"], session["email"])
     
     return jsonify({
-        "user-data" : user_data,
+        "user_id" : session["user_id"],
+        "username" : session["username"],
+        "email" : session["email"],
         "message" : "Successfully logged into account!"
     })
 
 
 if __name__ == "__main__":
+    app.config["SESSION_TYPE"] = "filesystem"
     app.run(port=5001, debug=True)
