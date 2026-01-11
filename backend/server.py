@@ -1,5 +1,6 @@
 import string 
 import random
+import os
 
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
@@ -8,7 +9,6 @@ from dotenv import load_dotenv
 
 from passlib.hash import bcrypt
 from psycopg2.pool import ThreadedConnectionPool
-import os
 
 # loading the database information from the .env file
 load_dotenv()
@@ -29,7 +29,12 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") # get the session key for the app
 
 # allowing only from localhost:3000 to listen in
-CORS(app, origins=["http://localhost:3000"]) # take note of the port here always
+CORS(
+    app, 
+    supports_credentials=True,
+    origins=["http://localhost:3000"] # requests must come from this URL (frontend)
+) # take note of the port here always
+
 
 ##### DATABASE #####
 
@@ -91,6 +96,10 @@ def setUserSession(username):
     session["user_id"] = user_data[0][0]
     session["username"] = user_data[0][1]
     session["email"] = user_data[0][2]
+
+    print("user_id: ", session["user_id"])
+    print("username: ", session["username"])
+    print("email: ", session["email"])
     return 
 
 ##### HTTP REQUESTS #####
@@ -186,13 +195,16 @@ def confirmSignup():
     })
     
 # CHAT PAGE
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["GET", "POST"])
 def chat():
+    print("session data: ", dict(session))
     if "user_id" not in session:
+        print("USER NOT LOGGED IN")
         return jsonify({
-            "error" : "User is not logged in."
+            "message" : "User is not logged in."
         })
     
+    print("SENDING EXISTING USER")
     return jsonify({
         "user_id" : session["user_id"],
         "username" : session["username"],
@@ -202,5 +214,5 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.config["SESSION_TYPE"] = "filesystem"
-    app.run(port=5001, debug=True)
+    # app.config["SESSION_TYPE"] = "filesystem"
+    app.run(port=5001, debug=True, use_reloader=False)

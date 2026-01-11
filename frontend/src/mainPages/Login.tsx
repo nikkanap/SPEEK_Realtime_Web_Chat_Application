@@ -13,8 +13,10 @@ function LoginPage() {
   const apiURL = import.meta.env.VITE_API_URL;
 
   const handleLogin = async () => {
+    // send a post request
     const response = await fetch(`${apiURL}/login`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type" : "application/json" },
       body: JSON.stringify({
         username,
