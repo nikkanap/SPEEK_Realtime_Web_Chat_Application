@@ -72,6 +72,7 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [ ] The user must be able to modify their password
 
 ### Messaging
+- [x] The user must be able to select a user to chat with
 - [ ] The user must be able to receive messages from another user
 - [ ] The user must be able to send messages to another user
 - [ ] The user must be able to delete individual messages
