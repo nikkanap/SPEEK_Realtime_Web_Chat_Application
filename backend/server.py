@@ -194,17 +194,15 @@ def confirmSignup():
                     else f"An error has occurred while adding new user." 
     })
     
-# CHAT PAGE
-@app.route("/chatlist", methods=["GET"])
-def chatlist():
-    print("session data: ", dict(session))
+# CHAT LIST PAGE
+@app.route("/user_data", methods=["GET"])
+def getUserData():
     if "user_id" not in session:
         print("USER NOT LOGGED IN")
         return jsonify({
             "message" : "User is not logged in."
         })
-    
-    print("SENDING EXISTING USER")
+
     return jsonify({
         "user_id" : session["user_id"],
         "username" : session["username"],
@@ -231,26 +229,45 @@ def getUsers():
         "users" : usersData
     })
 
-"""
-@app.route("/get_chatmate", methods=["GET"])
-def getChatmate():
+@app.route("/select_chatmate", methods=["POST"])
+def selectChatmate():
+    print("Getting chatmate info")
     if "username" not in session:
         print("USER NOT LOGGED IN")
         return jsonify({
             "message" : "User is not logged in."
         })
     
-    users = runQuery(
-        "SELECT * FROM users WHERE username=%s",
-        (username,)
-    )["data"]
+    data = request.json
 
-    print("sending users ", users)
-
+    session["chatmate_id"] = data.get("userid")
+    session["chatmate_username"] = data.get("username")
+    
+    print("saved user ", session["chatmate_username"])
     return jsonify({
-        "users" : users
+        "success" : True
     })
-"""
+
+@app.route("/get_chatmate", methods=["GET"])
+def getChatmate():
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    if "chatmate_id" not in session:
+        print("NO SELECTED USER TO CHAT")
+        return jsonify({
+            "message" : "No user selected to chat."
+        })
+    
+    print(session["chatmate_id"])
+    return jsonify({
+        "userid" : session["chatmate_id"],
+        "username" : session["chatmate_username"]
+    })
+
 
 if __name__ == "__main__":
     # app.config["SESSION_TYPE"] = "filesystem"

@@ -14,7 +14,7 @@ function ChatList() {
 
   useEffect(() => {
     const loadPage = async () => {
-      const res = await fetch(`${apiURL}/chatlist`, {
+      const res = await fetch(`${apiURL}/user_data`, {
         headers: { "Content-Type" : "application/json" },
         credentials: "include"
       });
@@ -37,18 +37,21 @@ function ChatList() {
     getListOfUsers();
   }, []);
 
-  const selectUser = async (user: Object) => {
+  const selectUser = async (user: Array<number>) => {
     setMessage(`Hello, ${user}!`);
 
-    const res = await fetch(`${apiURL}/chatlist`, {
+    const res = await fetch(`${apiURL}/select_chatmate`, {
       method: "POST",
       headers: { "Content-Type" : "application/json" },
+      credentials: "include",
       body: JSON.stringify({
-        user
+        userid : user[0],
+        username : user[1]
       })
+    });
 
-    })
-    navigate("/chatpage");
+    const success = await res.json()
+    if (success.success) navigate("/chatpage");
   }
 
   return (
@@ -59,7 +62,6 @@ function ChatList() {
         <p className='username'>Users</p>
         {
           users.map((user) => {
-            console.log(user);
             return <p 
               className="chatName" 
               key={user[0]}

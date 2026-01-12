@@ -7,14 +7,13 @@ function ChatPage() {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
-  const [users, setUsers] = useState([]);
-  const [message, setMessage] = useState("");
+  const [chatmate, setChatmate] = useState({});
 
   const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const loadPage = async () => {
-      const res = await fetch(`${apiURL}/chatpage`, {
+      const res = await fetch(`${apiURL}/user_data`, {
         headers: { "Content-Type" : "application/json" },
         credentials: "include"
       });
@@ -25,14 +24,15 @@ function ChatPage() {
 
     const getChatmate = async () => {
       const res = await fetch(`${apiURL}/get_chatmate`, {
-        headers: { "Content-Type" : "application/json" },
+        headers: { "Content-Type" : "application/json"},
         credentials: "include"
       });
-
-      const chatmateData = await res.json()
-      setUsers(chatmateData.users);
+      
+      const chatmateData = await res.json();
+      setChatmate(chatmateData);
+      console.log(chatmateData);
     }
-
+    
     loadPage();
     getChatmate();
   }, []);
@@ -42,7 +42,7 @@ function ChatPage() {
       <Header />
       <div className='chatContainer'>
         <p className='username'>{`Logged In As: ${username}`}</p>
-        <p></p>
+        <p>{`Chatting with: ${ ("username" in chatmate) ? chatmate["username"] : "no user"}`}</p>
       </div>
     </>
   )
