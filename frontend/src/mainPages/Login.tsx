@@ -27,7 +27,7 @@ function LoginPage() {
     const data = await response.json();
     setMessage(data.message);
 
-    if(data.success) navigate("/chatpage"); 
+    if(data.success) navigate("/chatlist"); 
   }
   
   return (

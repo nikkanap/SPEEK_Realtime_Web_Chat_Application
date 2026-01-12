@@ -3,3 +3,20 @@
   flex-direction: row;
   justify-content: space-between;
 }
+
+.chatContainer {
+  width: 300px;
+  height: 80%;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.chatName {
+  cursor: pointer;
+}
+
+.chatName:hover {
+  color: yellow;
+}

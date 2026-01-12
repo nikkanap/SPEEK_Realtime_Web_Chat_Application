@@ -18,7 +18,7 @@ pool = ThreadedConnectionPool(
     minconn=1,
     maxconn=10,
     dbname=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),
+    user=os.getenv("DB_USER"),  
     password=os.getenv("DB_PASSWORD"),
     host=os.getenv("DB_HOST"),
     port=int(os.getenv("DB_PORT"))
@@ -151,7 +151,7 @@ def confirmLogin():
     })
 
 # SIGNUP PAGE
-@app.route("/signup", methods=["POSt"])
+@app.route("/signup", methods=["POST"])
 def confirmSignup(): 
     # Get data
     data = request.json
@@ -195,8 +195,8 @@ def confirmSignup():
     })
     
 # CHAT PAGE
-@app.route("/chat", methods=["GET", "POST"])
-def chat():
+@app.route("/chatlist", methods=["GET"])
+def chatlist():
     print("session data: ", dict(session))
     if "user_id" not in session:
         print("USER NOT LOGGED IN")
@@ -212,6 +212,26 @@ def chat():
         "message" : "Successfully logged into account!"
     })
 
+@app.route("/get_users", methods=["GET"])
+def getUsers():
+    print("Getting user list")
+    if "username" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    username = session["username"]
+    users = runQuery(
+        "SELECT username FROM users WHERE not username=%s",
+        (username,)
+    )["data"]
+
+    print("sending users ", users)
+
+    return jsonify({
+        "users" : users
+    })
 
 if __name__ == "__main__":
     # app.config["SESSION_TYPE"] = "filesystem"
