@@ -15,8 +15,15 @@
 
 .chatName {
   cursor: pointer;
+  width: fit-content;
+  margin: auto;
 }
 
 .chatName:hover {
   color: yellow;
+}
+
+.subtext {
+  font-style: italic;
+  font-size: 15px;
 }

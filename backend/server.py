@@ -222,8 +222,26 @@ def getUsers():
         })
     
     username = session["username"]
+    usersData = runQuery(
+        "SELECT userid, username FROM users WHERE not username=%s",
+        (username,)
+    )["data"]
+
+    return jsonify({
+        "users" : usersData
+    })
+
+"""
+@app.route("/get_chatmate", methods=["GET"])
+def getChatmate():
+    if "username" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
     users = runQuery(
-        "SELECT username FROM users WHERE not username=%s",
+        "SELECT * FROM users WHERE username=%s",
         (username,)
     )["data"]
 
@@ -232,6 +250,7 @@ def getUsers():
     return jsonify({
         "users" : users
     })
+"""
 
 if __name__ == "__main__":
     # app.config["SESSION_TYPE"] = "filesystem"

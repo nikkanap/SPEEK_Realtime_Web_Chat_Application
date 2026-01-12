@@ -8,10 +8,10 @@ function ChatList() {
 
   const [username, setUsername] = useState("");
   const [users, setUsers] = useState([]);
+  const [message, setMessage] = useState("");
 
   const apiURL = import.meta.env.VITE_API_URL;
 
-  
   useEffect(() => {
     const loadPage = async () => {
       const res = await fetch(`${apiURL}/chatlist`, {
@@ -33,10 +33,23 @@ function ChatList() {
       setUsers(usersData.users);
     }
 
-
     loadPage();
     getListOfUsers();
   }, []);
+
+  const selectUser = async (user: Object) => {
+    setMessage(`Hello, ${user}!`);
+
+    const res = await fetch(`${apiURL}/chatlist`, {
+      method: "POST",
+      headers: { "Content-Type" : "application/json" },
+      body: JSON.stringify({
+        user
+      })
+
+    })
+    navigate("/chatpage");
+  }
 
   return (
     <>
@@ -46,9 +59,16 @@ function ChatList() {
         <p className='username'>Users</p>
         {
           users.map((user) => {
-            return <p className="chatName" key={user}>{user}</p>;
+            console.log(user);
+            return <p 
+              className="chatName" 
+              key={user[0]}
+              onClick={() => selectUser(user)}
+            >{user[1]}</p>;
           })
         }
+        <p className='subtext'>Click on a user to send them a message!</p>
+        <p>{message}</p>
       </div>
     </>
   )
