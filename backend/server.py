@@ -1,29 +1,11 @@
-import string 
-import random
 import os
+
+from db import runQuery 
+from utils import generateUserID, generatePassHash, checkPassHash
 
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room
-
-from dotenv import load_dotenv 
-
-from passlib.hash import bcrypt
-from psycopg2.pool import ThreadedConnectionPool
-
-# loading the database information from the .env file
-load_dotenv()
-
-# getting the data from the database through the config file
-pool = ThreadedConnectionPool(
-    minconn=1,
-    maxconn=10,
-    dbname=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),  
-    password=os.getenv("DB_PASSWORD"),
-    host=os.getenv("DB_HOST"),
-    port=int(os.getenv("DB_PORT"))
-)
 
 # Flask for HTTP requests
 app = Flask(__name__)
@@ -58,56 +40,6 @@ def handle_message(data):
     room = data["room"]
     msg = data["message"]
     emit("message", msg, room=room)
-
-
-##### DATABASE #####
-# modify this later AFTER creating signup page that has hashed passwords
-def runQuery(query, params=None, fetch=True):
-    # Get a connection to the db
-    db_connection = pool.getconn()
-
-    # returning values
-    success = False
-    data = ()
-
-    try:
-        with db_connection.cursor() as cursor:
-            cursor.execute(query, params)
-
-            if fetch: # if we need to get any results
-                data = cursor.fetchall() or ()
-            
-            # if no results
-            db_connection.commit()
-            success = True # if successful, then we set success to true
-
-    except Exception as e:
-        db_connection.rollback()
-        print('An exception occurred', e)
-        raise # raise the exception
-
-    finally:
-        # give the connection back regardless of results
-        pool.putconn(db_connection)
-
-        # return a dict
-        return {
-            "data" : data,
-            "success" : success
-        } 
-
-##### GENERATING USERIDS AND PASSWORD HASHING #####
-# generates a userID of size 10
-def generateUserID(size=10, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-# generates a hash of the password string
-def generatePassHash(password):
-    return bcrypt.hash(password)
-
-# matches the password
-def checkPassHash(password, passwordhash):
-    return bcrypt.verify(password, passwordhash)
 
 # sets the user session
 def setUserSession(username):
@@ -301,7 +233,6 @@ def logOutUser():
     session.pop("userid", None)
     session.pop("username", None)
     session.pop("email", None)
-    session.pop("password", None)
     session.pop("chatmate_userid", None)
     session.pop("chatmate_username", None)
 
