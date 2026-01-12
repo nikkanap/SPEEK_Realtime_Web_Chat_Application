@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room
 
 from dotenv import load_dotenv 
 
@@ -28,16 +29,38 @@ pool = ThreadedConnectionPool(
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY") # get the session key for the app
 
-# allowing only from localhost:3000 to listen in
 CORS(
     app, 
-    supports_credentials=True,
-    origins=["http://localhost:3000"] # requests must come from this URL (frontend)
+    origins=[os.getenv("FRONTEND_URL")], # requests must come from this URL (frontend)
+    supports_credentials=True
 ) # take note of the port here always
+
+socketio = SocketIO(
+    app,
+    cors_allowed_origins=os.getenv("FRONTEND_URL"),
+    async_mode="eventlet", # allows the server to handle simultaneous network connections 
+    logger=True,
+    engineio_logger=True
+)
+
+#### NETWORKING ####
+@socketio.on("connect")
+def handleConnect():
+    print("client connected")
+
+@socketio.on("join")
+def handleJoin(data):
+    room = data["room"]
+    join_room(room)
+
+@socketio.on("message")
+def handle_message(data):
+    room = data["room"]
+    msg = data["message"]
+    emit("message", msg, room=room)
 
 
 ##### DATABASE #####
-
 # modify this later AFTER creating signup page that has hashed passwords
 def runQuery(query, params=None, fetch=True):
     # Get a connection to the db
@@ -194,7 +217,7 @@ def confirmSignup():
                     else f"An error has occurred while adding new user." 
     })
     
-# CHAT LIST PAGE
+# GETTING USER DATA
 @app.route("/user_data", methods=["GET"])
 def getUserData():
     if "user_id" not in session:
@@ -210,6 +233,8 @@ def getUserData():
         "message" : "Successfully logged into account!"
     })
 
+
+# GETTING LIST OF USERS
 @app.route("/get_users", methods=["GET"])
 def getUsers():
     print("Getting user list")
@@ -229,6 +254,7 @@ def getUsers():
         "users" : usersData
     })
 
+# SAVING SELECTED CHATMATE
 @app.route("/select_chatmate", methods=["POST"])
 def selectChatmate():
     print("Getting chatmate info")
@@ -248,6 +274,7 @@ def selectChatmate():
         "success" : True
     })
 
+# GETTING DATA OF SELECTED CHATMATE
 @app.route("/get_chatmate", methods=["GET"])
 def getChatmate():
     if "user_id" not in session:
@@ -268,7 +295,33 @@ def getChatmate():
         "username" : session["chatmate_username"]
     })
 
+# LOGGING OUT 
+@app.route("/logout", methods=["POST"])
+def logOutUser():
+    session.pop("userid", None)
+    session.pop("username", None)
+    session.pop("email", None)
+    session.pop("password", None)
+    session.pop("chatmate_userid", None)
+    session.pop("chatmate_username", None)
+
+    return jsonify({
+        "success" : True,
+        "message" : "Successfully logged out user!"
+    })
 
 if __name__ == "__main__":
-    # app.config["SESSION_TYPE"] = "filesystem"
-    app.run(port=5001, debug=True, use_reloader=False)
+    """
+    instead of using:
+    > app.run(port=5001, debug=True, use_reloader=False)
+    we use:
+    > socketio.run(app, host="0.0.0.0", port=5001)
+    because this runs both flask AND handles web socket connections
+    """
+    socketio.run(
+        app,    
+        host="0.0.0.0",     # localhost
+        port=5001,          # port of the server
+        debug=True,         # allow debugging prints
+        use_reloader=True   # server restarts automatically so any changes made restarts the server
+    )
