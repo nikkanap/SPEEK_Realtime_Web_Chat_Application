@@ -1,7 +1,8 @@
 import './styles.css';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import Header from './components/Header';
 import { useEffect, useState } from 'react';
+import { io } from "socket.io-client";
 
 function ChatPage() {
   const navigate = useNavigate();
@@ -10,6 +11,10 @@ function ChatPage() {
   const [chatmate, setChatmate] = useState({});
 
   const apiURL = import.meta.env.VITE_API_URL;
+  const socket = io("http://localhost:5000", {
+    withCredentials: true,
+    transports: ["websockets"], // important. always add this
+  });
 
   useEffect(() => {
     const loadPage = async () => {
@@ -32,9 +37,21 @@ function ChatPage() {
       setChatmate(chatmateData);
       console.log(chatmateData);
     }
-    
+
+    const joinRoom = () => {
+      socket.emit("join", { room: "room1" });
+      socket.emit("message", {
+        room: "room1",
+        message: "Hello from client A"
+      });
+      socket.on("message", (msg) => {
+        console.log("Received:", msg);
+      })
+    };
+
     loadPage();
     getChatmate();
+    joinRoom();
   }, []);
 
   return (
@@ -43,6 +60,9 @@ function ChatPage() {
       <div className='chatContainer'>
         <p className='username'>{`Logged In As: ${username}`}</p>
         <p>{`Chatting with: ${ ("username" in chatmate) ? chatmate["username"] : "no user"}`}</p>
+        <div className='chatArea'>
+
+        </div>
       </div>
     </>
   )
