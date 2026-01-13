@@ -47,15 +47,18 @@ def setUserSession(username):
         "SELECT userID, username, email FROM users WHERE username=%s",
         (username,)
     )["data"]
-    print("user data: ", user_data)
     session["user_id"] = user_data[0][0]
     session["username"] = user_data[0][1]
     session["email"] = user_data[0][2]
-
-    print("user_id: ", session["user_id"])
-    print("username: ", session["username"])
-    print("email: ", session["email"])
     return 
+
+def closeUserSession():
+    session.pop("userid", None)
+    session.pop("username", None)
+    session.pop("email", None)
+    session.pop("chatmate_userid", None)
+    session.pop("chatmate_username", None)
+    return
 
 ##### HTTP REQUESTS #####
 # HOMEPAGE
@@ -143,6 +146,9 @@ def confirmSignup():
 
     # Return reponse for adding new user
     success = insert_results["success"]
+    if success:
+        setUserSession(username)
+        
     return jsonify({
         "success": success,
         "message": f"User {username} is officially signed in!" if success 
@@ -165,6 +171,27 @@ def getUserData():
         "message" : "Successfully logged into account!"
     })
 
+# DELETING USER
+@app.route("/delete_account", methods=["POST"])
+def deleteAccount(): 
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    data = runQuery(
+        "DELETE FROM users WHERE userid=%s",
+        (session["user_id"],),
+        False
+    )
+
+    if data["success"]:
+        closeUserSession()
+
+    return jsonify({
+        "success" : data["success"]
+    })
 
 # GETTING LIST OF USERS
 @app.route("/get_users", methods=["GET"])
@@ -230,11 +257,12 @@ def getChatmate():
 # LOGGING OUT 
 @app.route("/logout", methods=["POST"])
 def logOutUser():
-    session.pop("userid", None)
-    session.pop("username", None)
-    session.pop("email", None)
-    session.pop("chatmate_userid", None)
-    session.pop("chatmate_username", None)
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    closeUserSession()
 
     return jsonify({
         "success" : True,

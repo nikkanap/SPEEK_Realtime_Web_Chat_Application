@@ -16,6 +16,7 @@ function SignupPage() {
   const handleSignup = async () => {
     const response = await fetch(`${apiURL}/signup`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type" : "application/json" },
       body: JSON.stringify({
         username,
@@ -27,7 +28,10 @@ function SignupPage() {
     const data = await response.json();
     setMessage(data.message);
 
-    if(data.success) navigate('/chatpage');
+    if(data.success) {
+      alert(data.message)
+      navigate('/chatlist');
+    }
   }
 
   return (
