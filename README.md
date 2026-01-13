@@ -64,7 +64,7 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [x] The user must be able to register an account 
 - [x] The user must be able to login to an existing account
 - [x] The user must be able to log out of their account after use
-- [ ] The user must be able to delete their account if they wish to
+- [x] The user must be able to delete their account if they wish to
 - [ ] The user must be able to modify their user information
 - [ ] The user must be able to add a profile picture
 - [ ] The user must be able to remove a profile picture
