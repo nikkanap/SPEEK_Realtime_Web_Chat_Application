@@ -18,10 +18,17 @@ function ChatPage() {
   const [chatMessage, setChatMessage] = useState("");
 
   const apiURL = import.meta.env.VITE_API_URL;
+
+  // socket operations
   const socket = io(import.meta.env.VITE_API_URL, {
     withCredentials: true,
     transports: ["websocket"], // important. always add this
   });
+
+  // function for updating messages
+  const updateMessages = (msg:MsgType) => {
+    setMessages(prev => [...prev, msg]);
+  };
 
   useEffect(() => {
     const loadPage = async () => {
@@ -61,7 +68,14 @@ function ChatPage() {
       socket.emit("join", { room: "room1" });
     };
     joinRoom();
-  }, [username])
+  }, [username]);
+
+  useEffect(() => {
+    return () => {
+      // to avoid duplicating messages
+      socket.off("message", updateMessages);
+    }
+  }, [messages]);
 
   const enterMessage = (event: { key: string; preventDefault: () => void; }) => {
     if(event.key === "Enter") {
@@ -74,17 +88,8 @@ function ChatPage() {
         username: username
       });
 
-      const updateMessages = (msg:MsgType) => {
-        setMessages(prev => [...prev, msg]);
-      };
-      
       socket.on("message", updateMessages); 
       setChatMessage("");
-
-      // avoid duplicating messages
-      return () => {
-        socket.off("message", updateMessages);
-      }
     }
   }
 
