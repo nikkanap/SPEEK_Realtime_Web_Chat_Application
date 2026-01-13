@@ -37,7 +37,7 @@ Then go to App.tsx and add the pages in the `<BrowserRouter>` element .
 `pip install flask`
 2. flask_cors - handles cross-origin resource sharing (different ports): 
 `pip install flask-cors`
-3. lask_socketio - can be used to run the app; also handles websockets: 
+3. flask_socketio - can be used to run the app; also handles websockets: 
 `pip install flask-socketio`
 4. psycopg2.pool - where psycopg2 is the python database driver for psql, and psycopg2.pool allows reusing of connections instead of opening and closing multiple connections to the db: 
 `pip install psycopg2-binary`
@@ -66,14 +66,14 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [x] The user must be able to log out of their account after use
 - [x] The user must be able to delete their account if they wish to
 - [ ] The user must be able to modify their user information
-- [ ] The user must be able to add a profile picture
-- [ ] The user must be able to remove a profile picture
-- [ ] The user must be able to modify their password
+- [ ] The user must be able to add a profile picture [opt]
+- [ ] The user must be able to remove a profile picture [opt]
+- [ ] The user must be able to modify their password 
 
 ### Messaging
 - [x] The user must be able to select a user to chat with
 - [ ] The user must be able to receive messages from another user
-- [ ] The user must be able to send messages to another user
+- [ ] The user must be able to send messages to another user [status: ongoing]
 - [ ] The user must be able to delete individual messages
 - [ ] The user must be able to archive chats
 - [ ] Messages must be retained in their respective user chats
@@ -85,6 +85,7 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 
 ### Additional Notes (Technical):
 - [x] User passwords must be hashed before saving to the database (use bcrypt)
+- [x] userIDs in the database must be unique (no duplicates)
 
 
 
