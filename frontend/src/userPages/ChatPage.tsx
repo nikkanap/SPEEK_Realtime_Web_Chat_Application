@@ -4,16 +4,23 @@ import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import { io } from "socket.io-client";
 
+type MsgType = {
+  message: string,
+  key: string
+}
+
 function ChatPage() {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [chatmate, setChatmate] = useState({});
+  const [messages, setMessages] = useState<MsgType[]>([]);
+  const [chatMessage, setChatMessage] = useState("");
 
   const apiURL = import.meta.env.VITE_API_URL;
-  const socket = io("http://localhost:5000", {
+  const socket = io(import.meta.env.VITE_API_URL, {
     withCredentials: true,
-    transports: ["websockets"], // important. always add this
+    transports: ["websocket"], // important. always add this
   });
 
   useEffect(() => {
@@ -35,24 +42,51 @@ function ChatPage() {
       
       const chatmateData = await res.json();
       setChatmate(chatmateData);
-      console.log(chatmateData);
     }
-
-    const joinRoom = () => {
-      socket.emit("join", { room: "room1" });
-      socket.emit("message", {
-        room: "room1",
-        message: "Hello from client A"
-      });
-      socket.on("message", (msg) => {
-        console.log("Received:", msg);
-      })
-    };
 
     loadPage();
     getChatmate();
-    joinRoom();
   }, []);
+
+  useEffect(() => {
+     const joinRoom = async () => {
+      socket.on("connect", () => {
+        console.log("Connected to the server");
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("CONNECT ERROR", err.message)
+      })
+      
+      socket.emit("join", { room: "room1" });
+    };
+    joinRoom();
+  }, [username])
+
+  const enterMessage = (event: { key: string; preventDefault: () => void; }) => {
+    if(event.key === "Enter") {
+      console.log("Pressed enter key");
+      event.preventDefault();
+
+      socket.emit("message", {
+        room: "room1",
+        message: chatMessage,
+        username: username
+      });
+
+      const updateMessages = (msg:MsgType) => {
+        setMessages(prev => [...prev, msg]);
+      };
+      
+      socket.on("message", updateMessages); 
+      setChatMessage("");
+
+      // avoid duplicating messages
+      return () => {
+        socket.off("message", updateMessages);
+      }
+    }
+  }
 
   return (
     <>
@@ -61,8 +95,24 @@ function ChatPage() {
         <p className='username'>{`Logged In As: ${username}`}</p>
         <p>{`Chatting with: ${ ("username" in chatmate) ? chatmate["username"] : "no user"}`}</p>
         <div className='chatArea'>
-
+          { messages.length === 0 && (<p>**Empty**</p>) }
+          { messages.length > 0 && 
+            messages.map((msg) => {
+              return <p key={msg["key"]}>{msg["message"]}</p>
+            })
+          }
         </div>
+        <label>
+          Enter your message here:
+          <input 
+            type='text' 
+            className='chatbox'
+            value={chatMessage}
+            onKeyDown={enterMessage}
+            onChange={e => setChatMessage(e.target.value)}
+            placeholder='Say Hi!'
+          />
+        </label>
       </div>
     </>
   )

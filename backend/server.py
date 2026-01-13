@@ -1,7 +1,7 @@
 import os
 
 from db import runQuery 
-from utils import generateUserID, generatePassHash, checkPassHash
+from utils import generateID, generatePassHash, checkPassHash
 
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
@@ -20,7 +20,7 @@ CORS(
 socketio = SocketIO(
     app,
     cors_allowed_origins=os.getenv("FRONTEND_URL"),
-    async_mode="eventlet", # allows the server to handle simultaneous network connections 
+    async_mode="threading", # allows the server to handle simultaneous network connections 
     logger=True,
     engineio_logger=True
 )
@@ -38,8 +38,13 @@ def handleJoin(data):
 @socketio.on("message")
 def handle_message(data):
     room = data["room"]
-    msg = data["message"]
-    emit("message", msg, room=room)
+    # msg = data["message"]
+    data = {
+        "message" : f"{data["username"]}: { data["message"] }",
+        "key" : generateID()
+    }
+    print("sending back message")
+    emit("message", data, room=room)
 
 # sets the user session
 def setUserSession(username):
@@ -133,7 +138,7 @@ def confirmSignup():
         })
 
     # If user DNE:
-    user_ID = generateUserID()
+    user_ID = generateID()
     password_hash = generatePassHash(password)
 
     # Add user to database
@@ -148,7 +153,7 @@ def confirmSignup():
     success = insert_results["success"]
     if success:
         setUserSession(username)
-        
+
     return jsonify({
         "success": success,
         "message": f"User {username} is officially signed in!" if success 
@@ -196,7 +201,6 @@ def deleteAccount():
 # GETTING LIST OF USERS
 @app.route("/get_users", methods=["GET"])
 def getUsers():
-    print("Getting user list")
     if "username" not in session:
         print("USER NOT LOGGED IN")
         return jsonify({
