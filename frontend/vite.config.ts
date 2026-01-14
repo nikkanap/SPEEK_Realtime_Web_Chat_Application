@@ -11,6 +11,7 @@ export default defineConfig({
     }),
   ],
   server: {
+    host: "0.0.0.0", // makes vite project accessible to devices within LAN
     port: 3000
   }
 })
