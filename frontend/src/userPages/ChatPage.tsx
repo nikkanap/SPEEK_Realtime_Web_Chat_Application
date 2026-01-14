@@ -1,7 +1,7 @@
 import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 
 type MsgType = {
@@ -16,14 +16,12 @@ function ChatPage() {
   const [chatmate, setChatmate] = useState({});
   const [messages, setMessages] = useState<MsgType[]>([]);
   const [chatMessage, setChatMessage] = useState("");
+  const [roomID, setRoomID] = useState("");
 
   const apiURL = import.meta.env.VITE_API_URL;
 
   // socket operations
-  const socket = io(import.meta.env.VITE_API_URL, {
-    withCredentials: true,
-    transports: ["websocket"], // important. always add this
-  });
+  const socket = useRef<any>(null);
 
   // function for updating messages
   const updateMessages = (msg:MsgType) => {
@@ -53,27 +51,40 @@ function ChatPage() {
 
     loadPage();
     getChatmate();
+    
+    socket.current = io(import.meta.env.VITE_API_URL, {
+      withCredentials: true,
+      transports: ["websocket"], // important. always add this
+    });
   }, []);
 
   useEffect(() => {
+    const tempRoomID = "room1";
+    //`dm_${username}_${("username" in chatmate) ? chatmate["username"] : "error"}`;
+    setRoomID(tempRoomID);
+
      const joinRoom = async () => {
-      socket.on("connect", () => {
+      socket.current.on("connect", () => {
         console.log("Connected to the server");
       });
 
-      socket.on("connect_error", (err) => {
+      socket.current.on("connect_error", (err:any) => {
         console.error("CONNECT ERROR", err.message)
       })
       
-      socket.emit("join", { room: "room1" });
+      socket.current.emit("join", 
+        { 
+          room: tempRoomID,
+          user: username
+        });
     };
     joinRoom();
-  }, [username]);
+  }, [username, chatmate]);
 
   useEffect(() => {
     return () => {
       // to avoid duplicating messages
-      socket.off("message", updateMessages);
+      socket.current.off("message", updateMessages);
     }
   }, [messages]);
 
@@ -82,13 +93,13 @@ function ChatPage() {
       console.log("Pressed enter key");
       event.preventDefault();
 
-      socket.emit("message", {
-        room: "room1",
+      socket.current.emit("message", {
+        room: roomID  ,
         message: chatMessage,
         username: username
       });
 
-      socket.on("message", updateMessages); 
+      socket.current.on("message", updateMessages); 
       setChatMessage("");
     }
   }
@@ -106,7 +117,8 @@ function ChatPage() {
               return <p key={msg["key"]}>{msg["message"]}</p>
             })
           }
-        </div>
+        </div>  
+        
         <label>
           Enter your message here:
           <input 

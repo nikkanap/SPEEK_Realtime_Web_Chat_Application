@@ -13,13 +13,14 @@ app.secret_key = os.getenv("SECRET_KEY") # get the session key for the app
 
 CORS(
     app, 
-    origins=[os.getenv("FRONTEND_URL")], # requests must come from this URL (frontend)
+    origins=os.getenv("FRONTEND_URL"), # requests must come from this URL (frontend)
     supports_credentials=True
 ) # take note of the port here always
 
 socketio = SocketIO(
     app,
     cors_allowed_origins=os.getenv("FRONTEND_URL"),
+    manage_session=False,
     async_mode="threading", # allows the server to handle simultaneous network connections 
     logger=True,
     engineio_logger=True
@@ -27,24 +28,27 @@ socketio = SocketIO(
 
 #### NETWORKING ####
 @socketio.on("connect")
-def handleConnect():
-    print("client connected")
+def handle_connect():
+    print("client connected.")  
 
 @socketio.on("join")
-def handleJoin(data):
+def handle_join(data):
     room = data["room"]
+    user = data["user"]
+    print(f"{user} joining in room: {room}")
     join_room(room)
 
 @socketio.on("message")
 def handle_message(data):
     room = data["room"]
-    # msg = data["message"]
-    data = {
+
+    outgoing = {
         "message" : f"{data["username"]}: { data["message"] }",
         "key" : generateID()
     }
-    print("sending back message")
-    emit("message", data, room=room)
+    
+    print("sending back message to room ", room)
+    emit("message", outgoing, room=room)
 
 # sets the user session
 def setUserSession(username):
@@ -55,6 +59,9 @@ def setUserSession(username):
     session["user_id"] = user_data[0][0]
     session["username"] = user_data[0][1]
     session["email"] = user_data[0][2]
+
+    session.permanent = True
+    print("request.cookies: ", request.cookies)  # what cookies does each tab actually have?
     return 
 
 def closeUserSession():
@@ -63,7 +70,7 @@ def closeUserSession():
     session.pop("email", None)
     session.pop("chatmate_userid", None)
     session.pop("chatmate_username", None)
-    return
+    return  
 
 ##### HTTP REQUESTS #####
 # HOMEPAGE
@@ -283,8 +290,8 @@ if __name__ == "__main__":
     """
     socketio.run(
         app,    
-        host="0.0.0.0",     # localhost
+        host="0.0.0.0",     # accessible to multiple devices in the same LAN
         port=5001,          # port of the server
-        debug=True,         # allow debugging prints
+        debug=False,         # allow debugging prints
         use_reloader=True   # server restarts automatically so any changes made restarts the server
     )
