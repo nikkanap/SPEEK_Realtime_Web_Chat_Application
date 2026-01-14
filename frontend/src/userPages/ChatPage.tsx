@@ -23,32 +23,36 @@ function ChatPage() {
   // socket operations
   const socket = useRef<any>(null);
 
+  // **** FUNCTIONS ****
   // function for updating messages
   const updateMessages = (msg:MsgType) => {
     setMessages(prev => [...prev, msg]);
   };
 
+  // function for loading user data
+  const loadPage = async () => {
+    const res = await fetch(`${apiURL}/user_data`, {
+      headers: { "Content-Type" : "application/json" },
+      credentials: "include"
+    });
+
+    const userData = await res.json();
+    setUsername(userData.username);
+  }
+
+  // function for getting chatmate data
+  const getChatmate = async () => {
+    const res = await fetch(`${apiURL}/get_chatmate`, {
+      headers: { "Content-Type" : "application/json"},
+      credentials: "include"
+    });
+    
+    const chatmateData = await res.json();
+    setChatmate(chatmateData);
+  }
+  
+  // **** USEFFECTS ****
   useEffect(() => {
-    const loadPage = async () => {
-      const res = await fetch(`${apiURL}/user_data`, {
-        headers: { "Content-Type" : "application/json" },
-        credentials: "include"
-      });
-
-      const userData = await res.json();
-      setUsername(userData.username);
-    }
-
-    const getChatmate = async () => {
-      const res = await fetch(`${apiURL}/get_chatmate`, {
-        headers: { "Content-Type" : "application/json"},
-        credentials: "include"
-      });
-      
-      const chatmateData = await res.json();
-      setChatmate(chatmateData);
-    }
-
     loadPage();
     getChatmate();
     
@@ -58,12 +62,23 @@ function ChatPage() {
     });
   }, []);
 
+  // run once so there's no multiple listeners
+  useEffect(() => {
+    socket.current.on("message", updateMessages); 
+
+    return () => {
+      // to avoid duplicating messages
+      socket.current.off("message", updateMessages);
+    }
+  }, []);
+
+  // run when username and chatmate update
   useEffect(() => {
     const tempRoomID = "room1";
     //`dm_${username}_${("username" in chatmate) ? chatmate["username"] : "error"}`;
     setRoomID(tempRoomID);
 
-     const joinRoom = async () => {
+    const joinRoom = async () => {
       socket.current.on("connect", () => {
         console.log("Connected to the server");
       });
@@ -81,13 +96,6 @@ function ChatPage() {
     joinRoom();
   }, [username, chatmate]);
 
-  useEffect(() => {
-    return () => {
-      // to avoid duplicating messages
-      socket.current.off("message", updateMessages);
-    }
-  }, [messages]);
-
   const enterMessage = (event: { key: string; preventDefault: () => void; }) => {
     if(event.key === "Enter") {
       console.log("Pressed enter key");
@@ -99,7 +107,6 @@ function ChatPage() {
         username: username
       });
 
-      socket.current.on("message", updateMessages); 
       setChatMessage("");
     }
   }
