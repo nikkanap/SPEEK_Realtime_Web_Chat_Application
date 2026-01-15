@@ -8,6 +8,7 @@ import ChatList from './userPages/ChatList';
 import ChatPage from './userPages/ChatPage';
 import Profile from './userPages/Profile';
 import Notifications from './userPages/Notifications';
+import EditUser from './userPages/EditUser';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/chatpage" element={<ChatPage />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/edit_user" element={<EditUser />} />
       </Routes>
   )
 }
