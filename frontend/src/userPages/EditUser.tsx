@@ -43,7 +43,7 @@ function EditUser() {
     const result = await res.json();
     if(result.success) {
       alert(result.message)
-      closeDialog(confirmDialogRef, setMessage1);
+      closeDialog(confirmDialogRef, setMessage1, [setCurrentPassword]);
       openDialog(changePassDialogRef);
     } else {
       setMessage1(result.message)
@@ -69,7 +69,7 @@ function EditUser() {
       const result = await res.json();
       if(result.success) {
         alert(result.message)
-        closeDialog(changePassDialogRef, setMessage2);
+        closeDialog(changePassDialogRef, setMessage2, [setNewPassword, setRetypePassword]);
         return;
       }
      
@@ -86,10 +86,13 @@ function EditUser() {
     if(dialog.current) dialog.current.showModal();
   }
 
-  const closeDialog = (dialog : React.RefObject<HTMLDialogElement | null>, setMessage:React.Dispatch<React.SetStateAction<string>>) => {
+  const closeDialog = (dialog : React.RefObject<HTMLDialogElement | null>, setMessage:React.Dispatch<React.SetStateAction<string>>, setInputs:React.Dispatch<React.SetStateAction<string>>[]) => {
     if(dialog.current) {
       dialog.current.close();
       setMessage("");
+      setInputs.forEach(setInput => {
+        setInput("");
+      })
     }
   }
 
@@ -140,7 +143,7 @@ function EditUser() {
               <button onClick={checkCurrentPassword}>
                 Submit
               </button>
-              <button onClick={() => closeDialog(confirmDialogRef, setMessage1)}>
+              <button onClick={() => closeDialog(confirmDialogRef, setMessage1, [setCurrentPassword])}>
                 Cancel
               </button>
             </div>
@@ -174,7 +177,7 @@ function EditUser() {
               <button onClick={matchPasswords}>
                 Submit
               </button>
-              <button onClick={() => closeDialog(changePassDialogRef, setMessage2)}>
+              <button onClick={() => closeDialog(changePassDialogRef, setMessage2, [setNewPassword, setRetypePassword])}>
                 Cancel
               </button>
             </div>
