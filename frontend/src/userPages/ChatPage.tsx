@@ -43,10 +43,14 @@ function ChatPage() {
   
   // **** USEFFECTS ****
   useEffect(() => {
-    const userData:any = loadPage();
-    setUsername(("username" in userData) ? userData.username : "error");
-  
-    setChatmate(getChatmate());
+    // NOTE: Later on when polishing, make a type for data in these
+    loadPage().then((data:any) => {
+      setUsername(("username" in data) ? data.username : "error");
+    });
+    
+    getChatmate().then((data:any) => {
+      setChatmate(("username" in data) ? data.username : "error");
+    });
     
     // setting the value of socket
     socket.current = io(import.meta.env.VITE_API_URL, {
@@ -84,6 +88,7 @@ function ChatPage() {
           user: username
         });
     };
+    
     joinRoom();
   }, [username, chatmate]);
 

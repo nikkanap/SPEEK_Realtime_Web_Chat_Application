@@ -11,8 +11,10 @@ function EditUser() {
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    const userData:any = loadPage();
-    setUsername(("username" in userData) ? userData.username : "error");
+    loadPage().then(data => {
+      setUsername(("username" in data) ? data.username : "error");
+      setEmail(("email" in data) ? data.email : "error");
+    });
   }, []);
 
   // WORK ON THIS ONE NEXT

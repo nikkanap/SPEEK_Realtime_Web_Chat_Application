@@ -8,11 +8,13 @@ function ChatList() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    const userData:any = loadPage();
-    setUsername(("username" in userData) ? userData.username : "error");
-  
-    const userListData:any = getListOfUsers();
-    setUsers(("users" in userData) ? userListData.users : "error");
+    loadPage().then(data => {
+      setUsername(("username" in data) ? data.username : "error");
+    });
+    
+    getListOfUsers().then(data => {
+      setUsers(("users" in data) ? data.users : ["error"]);
+    })
   }, []);
 
   return (

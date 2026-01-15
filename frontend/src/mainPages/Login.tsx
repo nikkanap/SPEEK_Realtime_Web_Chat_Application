@@ -14,6 +14,7 @@ function LoginPage() {
 
   const handleLogin = async () => {
     // send a post request
+    console.log("handling login");
     const response = await fetch(`${apiURL}/login`, {
       method: "POST",
       credentials: "include",
@@ -24,7 +25,9 @@ function LoginPage() {
       })
     });
 
+    console.log("finished sending post request");
     const data = await response.json();
+    console.log("data: " + data);
     setMessage(data.message);
 
     if(data.success) {

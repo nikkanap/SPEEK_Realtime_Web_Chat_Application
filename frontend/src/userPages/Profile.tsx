@@ -13,9 +13,10 @@ function Profile() {
   const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const userData:any = loadPage();
-    setUsername(("username" in userData) ? userData.username : "error");
-    setEmail(("email" in userData) ? userData.email : "error");
+    loadPage().then(data => {
+      setUsername(("username" in data) ? data.username : "error");
+      setEmail(("email" in data) ? data.email : "error");
+    });
   }, []);
 
   const logout = async () => {
