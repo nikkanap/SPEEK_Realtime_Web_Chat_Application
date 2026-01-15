@@ -9,11 +9,11 @@ SPEEK is going to be a real-time chat web application where users can register a
 
 ## How To Run
 1. Enter the root project directory
-2. Backend: `cd backend`
-2.a `bash run.txt` or 
+2. Backend: `cd backend`\
+2.a `bash run.txt` or \
 2.b `source ./venv/bin/activate` then `python server.py`
-3. Frontend: `cd frontend`
-3.a `bash run.txt` or
+3. Frontend: `cd frontend`\
+3.a `bash run.txt` or\
 3.b `npm run dev`
 4. Proceed to http://localhost:3000 (frontend link)
 
