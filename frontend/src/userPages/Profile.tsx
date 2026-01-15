@@ -2,15 +2,13 @@ import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useState } from 'react';
-import { loadPage } from './components/utils';
+import { apiURL, loadPage } from './components/utils';
 
 function Profile() {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-
-  const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     loadPage().then(data => {
@@ -58,8 +56,8 @@ function Profile() {
         <p>Profile</p>
         <p>{`Username: ${username}`}</p>
         <p>{`Email: ${email}`}</p>
-        <div>
-          <button onClick={() => deleteAccount()}>
+        <div className='buttons'>
+          <button onClick={() => editInformation()}>
             Edit Information
           </button>
           <button onClick={() => logout()}>

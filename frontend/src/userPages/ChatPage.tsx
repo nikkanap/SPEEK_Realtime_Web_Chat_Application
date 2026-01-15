@@ -1,9 +1,8 @@
 import './styles.css';
-import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
-import { loadPage } from './components/utils';
+import { apiURL, loadPage } from './components/utils';
 
 type MsgType = {
   message: string,
@@ -11,15 +10,11 @@ type MsgType = {
 }
 
 function ChatPage() {
-  const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [chatmate, setChatmate] = useState({});
   const [messages, setMessages] = useState<MsgType[]>([]);
   const [chatMessage, setChatMessage] = useState("");
   const [roomID, setRoomID] = useState("");
-
-  const apiURL = import.meta.env.VITE_API_URL;
 
   // socket operations
   const socket = useRef<any>(null);

@@ -2,11 +2,11 @@ import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { useEffect, useState } from 'react';
+import { apiURL } from '../userPages/components/utils';
 
 function HomePage() {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
-  const apiURL = import.meta.env.VITE_API_URL; //importing the API url from .env in root folder
   
   useEffect(() => {
     const getMessage = async () => {

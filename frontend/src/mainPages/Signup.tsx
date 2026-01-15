@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import './styles.css'
 import { Link, useNavigate } from 'react-router-dom';
+import { apiURL } from '../userPages/components/utils';
 
 function SignupPage() {
   const navigate = useNavigate(); 
@@ -10,8 +11,6 @@ function SignupPage() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState(""); 
   const [message, setMessage] = useState("");
-
-  const apiURL = import.meta.env.VITE_API_URL;
   
   const handleSignup = async () => {
     const response = await fetch(`${apiURL}/signup`, {
@@ -71,7 +70,7 @@ function SignupPage() {
       </div>
       
       <div className='buttonsContainer'>
-        <button onClick={() => handleSignup()}>
+        <button onClick={handleSignup}>
           Sign In
         </button>
         <Link to='/login'>

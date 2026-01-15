@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 // getting the URL of our API/backend
-const apiURL = import.meta.env.VITE_API_URL;
+export const apiURL = import.meta.env.VITE_API_URL;
 
 export const loadPage = async () => {
     const res:any = await fetch(`${apiURL}/user_data`, {
