@@ -4,7 +4,8 @@ This is going to me my personal project in the Christmas Break before the 2nd Se
 ## Application Description
 SPEEK is going to be a real-time chat web application where users can register an account and start chatting with other fellow users!
 
-> [!NOTE]  Shifted to a Linux Distro (Ubuntu) but most likely most of the code presented in this documentation will be the same
+> [!NOTE]  
+> Shifted to a Linux Distro (Ubuntu) but most likely most of the code presented in this documentation will be the same
 
 ## How To Run
 1. Enter the root project directory
