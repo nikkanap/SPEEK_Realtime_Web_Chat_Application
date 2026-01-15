@@ -8,7 +8,7 @@ export const loadPage = async () => {
         headers: { "Content-Type" : "application/json" },
         credentials: "include"
     });
-
+    
     return await res.json();  // returns an object
 }
 
