@@ -65,10 +65,10 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [x] The user must be able to login to an existing account
 - [x] The user must be able to log out of their account after use
 - [x] The user must be able to delete their account if they wish to
-- [ ] The user must be able to modify their user information
+- [ ] The user must be able to modify their user information [ongoing]
 - [ ] The user must be able to add a profile picture [opt]
 - [ ] The user must be able to remove a profile picture [opt]
-- [ ] The user must be able to modify their password 
+- [x] The user must be able to modify their password [to polish]
 
 ### Messaging
 - [x] The user must be able to select a user to chat with
