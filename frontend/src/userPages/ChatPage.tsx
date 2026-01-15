@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
+import { loadPage } from './components/utils';
 
 type MsgType = {
   message: string,
@@ -29,17 +30,6 @@ function ChatPage() {
     setMessages(prev => [...prev, msg]);
   };
 
-  // function for loading user data
-  const loadPage = async () => {
-    const res = await fetch(`${apiURL}/user_data`, {
-      headers: { "Content-Type" : "application/json" },
-      credentials: "include"
-    });
-
-    const userData = await res.json();
-    setUsername(userData.username);
-  }
-
   // function for getting chatmate data
   const getChatmate = async () => {
     const res = await fetch(`${apiURL}/get_chatmate`, {
@@ -53,17 +43,18 @@ function ChatPage() {
   
   // **** USEFFECTS ****
   useEffect(() => {
-    loadPage();
-    getChatmate();
+    const userData:any = loadPage();
+    setUsername(("username" in userData) ? userData.username : "error");
+  
+    setChatmate(getChatmate());
     
+    // setting the value of socket
     socket.current = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
       transports: ["websocket"], // important. always add this
     });
-  }, []);
 
-  // run once so there's no multiple listeners
-  useEffect(() => {
+    // run once to have one continuing listener
     socket.current.on("message", updateMessages); 
 
     return () => {

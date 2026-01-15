@@ -10,8 +10,6 @@ function EditUser() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
-  const apiURL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     const userData:any = loadPage();
     setUsername(("username" in userData) ? userData.username : "error");

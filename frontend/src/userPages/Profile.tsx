@@ -2,6 +2,7 @@ import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useState } from 'react';
+import { loadPage } from './components/utils';
 
 function Profile() {
   const navigate = useNavigate();
@@ -12,18 +13,9 @@ function Profile() {
   const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const loadPage = async () => {
-      const res = await fetch(`${apiURL}/user_data`, {
-        headers: { "Content-Type" : "application/json" },
-        credentials: "include"
-      });
-
-      const userData = await res.json();
-      setUsername(userData.username);
-      setEmail(userData.email);
-    }
-
-    loadPage();
+    const userData:any = loadPage();
+    setUsername(("username" in userData) ? userData.username : "error");
+    setEmail(("email" in userData) ? userData.email : "error");
   }, []);
 
   const logout = async () => {
@@ -54,6 +46,10 @@ function Profile() {
     if(data.success) navigate("/");
   }
 
+  const editInformation = () => {
+    navigate("/edit_user");
+  };
+
   return (
     <>
       <Header />
@@ -62,6 +58,9 @@ function Profile() {
         <p>{`Username: ${username}`}</p>
         <p>{`Email: ${email}`}</p>
         <div>
+          <button onClick={() => deleteAccount()}>
+            Edit Information
+          </button>
           <button onClick={() => logout()}>
             Log Out
           </button>
