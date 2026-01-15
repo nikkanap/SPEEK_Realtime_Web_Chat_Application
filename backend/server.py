@@ -280,6 +280,60 @@ def logOutUser():
         "message" : "Successfully logged out user!"
     })
 
+# CHECKING CURRENT USER PASSWORD
+@app.route('/confirm_current_password', methods=['POST'])
+def confirmCurrentPass(): 
+    print("Here")
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+
+    passwordQuery = "SELECT passwordhash FROM users WHERE username=%s"
+    stored_pass = runQuery(
+        passwordQuery,
+        (username,)
+    )["data"][0][0]
+
+    success = checkPassHash(password, stored_pass)
+    return jsonify({
+        "success": success,
+        "message": "Password matches!" if success else "Password does not match."
+    })
+
+# CHANGING CURRENT USER PASSWORD
+@app.route('/change_password', methods=['POST'])
+def changePassword(): 
+    print("Here")
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    passwordhash = generatePassHash(password)
+
+    passwordQuery = "UPDATE users SET passwordhash=%s WHERE username=%s"
+    success = runQuery(
+        passwordQuery,
+        (passwordhash, username,),
+        False
+    )["success"]
+
+    return jsonify({
+        "success": success,
+        "message": "New password saved!" if success else "An error has occured while saving password."
+    })
+
+
 if __name__ == "__main__":
     """
     instead of using:

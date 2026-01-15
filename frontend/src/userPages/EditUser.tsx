@@ -2,17 +2,20 @@ import './styles.css';
 import { useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import { useEffect, useRef, useState } from 'react';
-import { loadPage } from './components/utils';
+import { apiURL, loadPage } from './components/utils';
 
 function EditUser() {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const dialogRef = useRef<HTMLDialogElement | null>(null);
-
-  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [retypePassword, setRetypePassword] = useState("");
+  const [message1, setMessage1] = useState("");
+  const [message2, setMessage2] = useState("");
+  const confirmDialogRef = useRef<HTMLDialogElement | null>(null);
+  const changePassDialogRef = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
     loadPage().then(data => {
@@ -26,22 +29,70 @@ function EditUser() {
     navigate("/edit_user");
   };
 
-  const changePassword = () => {
-    console.log("entering changePassword");
-    openDialog();
-  };
+  const checkCurrentPassword = async () => {
+    const res = await fetch(`${apiURL}/confirm_current_password`, {
+      method: "POST",
+      headers: { "Content-Type" : "application/json" }, 
+      credentials: "include",
+      body: JSON.stringify({
+        username,
+        password: currentPassword
+      })
+    });
 
-  const checkCurrentPassword = () => {
-    //const res = await fetch(`${apiURL}`)
+    const result = await res.json();
+    if(result.success) {
+      alert(result.message)
+      closeDialog(confirmDialogRef, setMessage1);
+      openDialog(changePassDialogRef);
+    } else {
+      setMessage1(result.message)
+      setTimeout(() => {
+        setMessage1("");
+      }, 2000)
+    }
   }
 
-  const openDialog = () => {
-    if(dialogRef.current) dialogRef.current.showModal();
+  const matchPasswords = async () => {
+    let msg = "";
+    if(newPassword === retypePassword) {
+      const res = await fetch(`${apiURL}/change_password`, {
+        method: "POST",
+        headers: { "Content-Type" : "application/json" }, 
+        credentials: "include",
+        body: JSON.stringify({
+          username,
+          password: newPassword
+        })
+      });
+
+      const result = await res.json();
+      if(result.success) {
+        alert(result.message)
+        closeDialog(changePassDialogRef, setMessage2);
+        return;
+      }
+     
+      msg = result.message
+    } else msg = "New password and retyped password do not match.";
+    setMessage2(msg);
+    setTimeout(() => {
+      setMessage2("");
+    }, 3000)
   }
 
-  const closeDialog = () => {
-    if(dialogRef.current) dialogRef.current.close();
+  // NOTE: make it so that the input elements are cleared each time dialog is opened up
+  const openDialog = (dialog : React.RefObject<HTMLDialogElement | null>) => {
+    if(dialog.current) dialog.current.showModal();
   }
+
+  const closeDialog = (dialog : React.RefObject<HTMLDialogElement | null>, setMessage:React.Dispatch<React.SetStateAction<string>>) => {
+    if(dialog.current) {
+      dialog.current.close();
+      setMessage("");
+    }
+  }
+
 
   return (
     <>
@@ -66,7 +117,7 @@ function EditUser() {
         </div>
 
         <div className='buttons'>
-          <button onClick={changePassword}>
+          <button onClick={() => openDialog(confirmDialogRef)}>
             Change Password
           </button>
           <button>
@@ -74,25 +125,60 @@ function EditUser() {
           </button>
         </div>
         
-        <dialog ref={dialogRef}>
+        <dialog ref={confirmDialogRef}>
           <div className='dialogBox'>
             <p>Enter your current password:</p>
             <input 
               type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
             />
+            <p>
+              {message1}
+            </p>
             <div className='buttons'>
-              
               <button onClick={checkCurrentPassword}>
                 Submit
               </button>
-              <button onClick={closeDialog}>
+              <button onClick={() => closeDialog(confirmDialogRef, setMessage1)}>
                 Cancel
               </button>
             </div>
           </div>
-          
+        </dialog>
+
+
+        <dialog ref={changePassDialogRef}>
+          <div className='dialogBox'>
+            <p className='username'>Change your password:</p>
+            <div className='userInfo'>
+              <label>
+                New Password:
+                <input 
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                />
+              </label>
+              <label>
+                Retype Password:
+                <input 
+                  type="password"
+                  value={retypePassword}
+                  onChange={e => setRetypePassword(e.target.value)}
+                />
+              </label>
+              <p>{message2}</p>
+            </div>
+            <div className='buttons'>
+              <button onClick={matchPasswords}>
+                Submit
+              </button>
+              <button onClick={() => closeDialog(changePassDialogRef, setMessage2)}>
+                Cancel
+              </button>
+            </div>
+          </div>
         </dialog>
       
       </div>
