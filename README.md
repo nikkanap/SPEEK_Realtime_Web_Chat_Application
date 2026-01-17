@@ -10,10 +10,10 @@ SPEEK is going to be a real-time chat web application where users can register a
 ## How To Run
 1. Enter the root project directory
 2. Backend: `cd backend`\
-2.a `bash run.txt` or \
+2.a `./run.sh` or \
 2.b `source ./venv/bin/activate` then `python server.py`
 3. Frontend: `cd frontend`\
-3.a `bash run.txt` or\
+3.a `./run.sh` or\
 3.b `npm run dev`
 4. Proceed to http://localhost:3000 (frontend link)
 
@@ -76,10 +76,10 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [x] The user must be able to login to an existing account
 - [x] The user must be able to log out of their account after use
 - [x] The user must be able to delete their account if they wish to
-- [ ] The user must be able to modify their user information [ongoing]
+- [x] The user must be able to modify their user information [ongoing]
 - [ ] \(Optional) The user must be able to add a profile picture 
 - [ ] \(Optional) The user must be able to remove a profile picture 
-- [x] The user must be able to modify their password [to polish]
+- [x] The user must be able to modify their password
 
 ### Messaging
 - [x] The user must be able to select a user to chat with
@@ -87,7 +87,7 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 - [x] The user must be able to send messages to another user 
 - [ ] The user must be able to delete individual messages
 - [ ] The user must be able to archive chats
-- [ ] Messages must be retained in their respective user chats
+- [ ] Messages must be persistent/sustained
 
 ### Notifications
 - [ ] The user must be able to receive message notifications
@@ -97,6 +97,7 @@ Then I logged in, added a password, and created "speekdb", the database for SPEE
 ### Additional Notes (Technical):
 - [x] User passwords must be hashed before saving to the database (use bcrypt)
 - [x] userIDs in the database must be unique (no duplicates)
-
-
-
+- [ ] Error checking for username, email, and password when signing in
+- [ ] Error checking for updating password
+- [ ] Create unique roomIDs that can be reused depending on who's chatting with who
+- [x] Create new table called "rooms" where roomIDs, user1ID and user2ID can be saved

@@ -64,6 +64,7 @@ def setUserSession(username):
     print("request.cookies: ", request.cookies)  # what cookies does each tab actually have?
     return 
 
+# logging out or closing the user session
 def closeUserSession():
     session.pop("userid", None)
     session.pop("username", None)
@@ -145,14 +146,14 @@ def confirmSignup():
         })
 
     # If user DNE:
-    user_ID = generateID()
+    user_id = generateID()
     password_hash = generatePassHash(password)
 
     # Add user to database
     insert_query = "INSERT INTO users (userID, username, email, passwordhash) VALUES (%s, %s, %s, %s)"
     insert_results = runQuery(
         insert_query,
-        (user_ID, username, email, password_hash), 
+        (user_id, username, email, password_hash), 
         False
     )
 
@@ -182,6 +183,39 @@ def getUserData():
         "email" : session["email"],
         "message" : "Successfully logged into account!"
     })
+
+# UPDATING USER DATA
+@app.route("/update_user_data", methods=["POST"])
+def updateUserData():
+    if "user_id" not in session:
+        print("USER NOT LOGGED IN")
+        return jsonify({
+            "message" : "User is not logged in."
+        })
+    
+    data = request.json
+    username = data.get("username")
+    email = data.get("email")
+
+    resultQuery = runQuery(
+        "UPDATE users SET username=%s, email=%s WHERE userid=%s",
+        (username, email, session["user_id"],),
+        False
+    )
+    
+    success = resultQuery["success"]
+
+    if success:
+        # updating session
+        session["username"] = username
+        session["email"] = email
+
+    return jsonify({
+        "success": success,
+        "message": "Successfully updated user information!" if success 
+                    else "An error has occurred while updating information."
+    })
+
 
 # DELETING USER
 @app.route("/delete_account", methods=["POST"])
@@ -291,13 +325,13 @@ def confirmCurrentPass():
         })
     
     data = request.json
-    username = data.get("username")
+    user_id = session["user_id"]
     password = data.get("password")
 
-    passwordQuery = "SELECT passwordhash FROM users WHERE username=%s"
+    passwordQuery = "SELECT passwordhash FROM users WHERE userid=%s"
     stored_pass = runQuery(
         passwordQuery,
-        (username,)
+        (user_id,)
     )["data"][0][0]
 
     success = checkPassHash(password, stored_pass)
@@ -317,14 +351,14 @@ def changePassword():
         })
     
     data = request.json
-    username = data.get("username")
+    user_id = session["user_id"]
     password = data.get("password")
     passwordhash = generatePassHash(password)
 
-    passwordQuery = "UPDATE users SET passwordhash=%s WHERE username=%s"
+    passwordQuery = "UPDATE users SET passwordhash=%s WHERE userid=%s"
     success = runQuery(
         passwordQuery,
-        (passwordhash, username,),
+        (passwordhash, user_id,),
         False
     )["success"]
 
